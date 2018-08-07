@@ -10,7 +10,7 @@
 
 ## Usage
 
-```
+```php
 $apiToken = ''; // You can find this token in your "API" page on https://redirect.pizza
 
 $redirectPizza = new \RedirectPizza\PhpSdk\RedirectPizza($apiToken);
