@@ -1,0 +1,40 @@
+{
+    "name": "enflow/redirect-pizza-php-sdk",
+    "description": "An SDK to easily work with the redirect.pizza API",
+    "keywords": [
+        "redirect.pizza",
+        "api",
+        "sdk"
+    ],
+    "homepage": "https://github.com/enflow-nl/redirect-pizza-php-sdk",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Michel Bardelmeijer",
+            "email": "michel@enflow.nl"
+        }
+    ],
+    "require": {
+        "php": "^7.2",
+        "guzzlehttp/guzzle": "^6.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "RedirectPizza\\PhpSdk\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "RedirectPizza\\PhpSdk\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
