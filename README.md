@@ -1,5 +1,9 @@
 # An SDK to easily work with API from redirect.pizza
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/enflow/redirect-pizza-php-sdk.svg?style=flat-square)](https://packagist.org/packages/enflow/redirect-pizza-php-sdk)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Total Downloads](https://img.shields.io/packagist/dt/enflow/redirect-pizza-php-sdk.svg?style=flat-square)](https://packagist.org/packages/enflow/redirect-pizza-php-sdk)
+
 ## Installation
 
 ```composer require enflow/redirect-pizza-php-sdk```
