@@ -16,7 +16,9 @@ class Redirect extends ApiResource
 
     public $redirectType;
 
-    public $keepParameters;
+    public $keepQueryString;
+
+    public $uriForwarding;
 
     /**
      * @param array              $attributes
