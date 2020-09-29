@@ -4,9 +4,6 @@ namespace RedirectPizza\PhpSdk;
 
 use GuzzleHttp\Client;
 use RedirectPizza\PhpSdk\Actions\ManagesRedirects;
-use RedirectPizza\PhpSdk\Actions\ManagesSites;
-use RedirectPizza\PhpSdk\Actions\ManagesChecks;
-use RedirectPizza\PhpSdk\Actions\ManagesUsers;
 
 class RedirectPizza
 {

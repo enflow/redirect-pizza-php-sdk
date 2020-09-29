@@ -1,6 +1,7 @@
 # An SDK to easily work with API from redirect.pizza
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/enflow/redirect-pizza-php-sdk.svg?style=flat-square)](https://packagist.org/packages/enflow/redirect-pizza-php-sdk)
+![GitHub Workflow Status](https://github.com/enflow-nl/livewire-twig/workflows/run-tests/badge.svg)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Total Downloads](https://img.shields.io/packagist/dt/enflow/redirect-pizza-php-sdk.svg?style=flat-square)](https://packagist.org/packages/enflow/redirect-pizza-php-sdk)
 

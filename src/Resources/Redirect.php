@@ -19,7 +19,7 @@ class Redirect extends ApiResource
     public $keepQueryString;
 
     public $uriForwarding;
-    
+
     public $tracking;
 
     /**
@@ -32,7 +32,7 @@ class Redirect extends ApiResource
 
         $this->sources = array_map(function (array $checkAttributes) {
             return new Source($checkAttributes);
-        }, $this->sources);
+        }, $this->sources ?? []);
     }
 
     /**

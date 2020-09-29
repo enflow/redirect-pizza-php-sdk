@@ -58,7 +58,9 @@ trait MakesHttpRequests
      */
     protected function request(string $verb, string $uri, array $payload = [])
     {
-        $response = $this->client->request($verb, $uri,
+        $response = $this->client->request(
+            $verb,
+            $uri,
             empty($payload) ? [] : ['form_params' => $payload]
         );
 

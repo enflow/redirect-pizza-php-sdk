@@ -3,3 +3,4 @@ composer.lock
 docs
 vendor
 test.php
+.php_cs.cache
