@@ -2,30 +2,24 @@
 
 namespace RedirectPizza\PhpSdk\Resources;
 
-use RedirectPizza\PhpSdk\RedirectPizza;
-
 class Redirect extends ApiResource
 {
-    public $id;
+    public int $id;
 
-    public $sources;
+    public array $sources;
 
-    public $domains;
+    public array $domains;
 
-    public $destination;
+    public string $destination;
 
-    public $redirectType;
+    public string $redirectType;
 
-    public $keepQueryString;
+    public bool $keepQueryString;
 
-    public $uriForwarding;
+    public bool $uriForwarding;
 
-    public $tracking;
+    public bool $tracking;
 
-    /**
-     * @param array              $attributes
-     * @param RedirectPizza|null $redirectPizza
-     */
     public function __construct(array $attributes, $redirectPizza = null)
     {
         parent::__construct($attributes, $redirectPizza);
@@ -33,24 +27,18 @@ class Redirect extends ApiResource
         $this->sources = array_map(function (array $checkAttributes) {
             return new Source($checkAttributes);
         }, $this->sources ?? []);
+
+        $this->domains = array_map(function (array $checkAttributes) {
+            return new Domain($checkAttributes);
+        }, $this->domains ?? []);
     }
 
-    /**
-     * Update the given redirect.
-     *
-     * @return void
-     */
-    public function update(array $data)
+    public function update(array $data): void
     {
         $this->redirectPizza->updateRedirect($this->id, $data);
     }
 
-    /**
-     * Delete the given redirect.
-     *
-     * @return void
-     */
-    public function delete()
+    public function delete(): void
     {
         $this->redirectPizza->deleteRedirect($this->id);
     }
