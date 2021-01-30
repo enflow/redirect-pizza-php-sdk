@@ -22,10 +22,6 @@ class Redirect extends ApiResource
 
     public bool $tracking;
 
-    /**
-     * @param array              $attributes
-     * @param RedirectPizza|null $redirectPizza
-     */
     public function __construct(array $attributes, $redirectPizza = null)
     {
         parent::__construct($attributes, $redirectPizza);
@@ -39,21 +35,11 @@ class Redirect extends ApiResource
         }, $this->domains ?? []);
     }
 
-    /**
-     * Update the given redirect.
-     *
-     * @return void
-     */
     public function update(array $data): void
     {
         $this->redirectPizza->updateRedirect($this->id, $data);
     }
 
-    /**
-     * Delete the given redirect.
-     *
-     * @return void
-     */
     public function delete(): void
     {
         $this->redirectPizza->deleteRedirect($this->id);
