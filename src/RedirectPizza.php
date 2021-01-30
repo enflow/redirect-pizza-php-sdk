@@ -10,11 +10,9 @@ class RedirectPizza
     use MakesHttpRequests,
         ManagesRedirects;
 
-    /** @var string */
-    public $apiToken;
+    public string $apiToken;
 
-    /** @var \GuzzleHttp\Client */
-    public $client;
+    public Client $client;
 
     public function __construct(string $apiToken, Client $client = null)
     {

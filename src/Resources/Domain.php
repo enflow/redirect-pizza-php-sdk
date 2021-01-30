@@ -4,13 +4,13 @@ namespace RedirectPizza\PhpSdk\Resources;
 
 class Domain extends ApiResource
 {
-    public $id;
+    public int $id;
 
-    public $fqdn;
+    public string $fqdn;
 
-    public $isRootDomain;
+    public bool $isRootDomain;
 
-    public $dns;
+    public array $dns;
 
-    public $ssl;
+    public array $ssl;
 }

@@ -2,19 +2,15 @@
 
 namespace RedirectPizza\PhpSdk\Resources;
 
+use RedirectPizza\PhpSdk\RedirectPizza;
+
 class ApiResource
 {
-    /** @var array */
-    public $attributes = [];
+    public array $attributes = [];
 
-    /** @var \RedirectPizza\PhpSdk\RedirectPizza */
-    protected $redirectPizza;
+    protected ?RedirectPizza $redirectPizza;
 
-    /**
-     * @param  array $attributes
-     * @param  \RedirectPizza\PhpSdk\RedirectPizza $redirectPizza
-     */
-    public function __construct(array $attributes, $redirectPizza = null)
+    public function __construct(array $attributes, RedirectPizza $redirectPizza = null)
     {
         $this->attributes = $attributes;
 
