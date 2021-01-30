@@ -2,10 +2,10 @@
 
 namespace RedirectPizza\PhpSdk;
 
+use Psr\Http\Message\ResponseInterface;
 use RedirectPizza\PhpSdk\Exceptions\ApiException;
 use RedirectPizza\PhpSdk\Exceptions\NotFoundException;
 use RedirectPizza\PhpSdk\Exceptions\ValidationException;
-use Psr\Http\Message\ResponseInterface;
 
 trait MakesHttpRequests
 {
