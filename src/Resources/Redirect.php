@@ -2,8 +2,6 @@
 
 namespace RedirectPizza\PhpSdk\Resources;
 
-use RedirectPizza\PhpSdk\RedirectPizza;
-
 class Redirect extends ApiResource
 {
     public int $id;
