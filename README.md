@@ -1,5 +1,7 @@
 # An SDK to easily work with API from redirect.pizza
 
+[![redirect.pizza](https://user-images.githubusercontent.com/1583095/120214297-92af9300-c234-11eb-97e3-bbdaab060be9.png)](https://redirect.pizza?ref=github)
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/enflow/redirect-pizza-php-sdk.svg?style=flat-square)](https://packagist.org/packages/enflow/redirect-pizza-php-sdk)
 ![GitHub Workflow Status](https://github.com/enflow/redirect-pizza-php-sdk/workflows/run-tests/badge.svg)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
