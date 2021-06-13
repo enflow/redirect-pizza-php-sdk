@@ -7,8 +7,8 @@ use RedirectPizza\PhpSdk\Actions\ManagesRedirects;
 
 class RedirectPizza
 {
-    use MakesHttpRequests,
-        ManagesRedirects;
+    use MakesHttpRequests;
+    use ManagesRedirects;
 
     public string $apiToken;
 
