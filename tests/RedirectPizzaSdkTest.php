@@ -3,8 +3,9 @@
 namespace RedirectPizza\PhpSdk\Tests;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
-use Mockery;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RedirectPizza\PhpSdk\Exceptions\NotFoundException;
 use RedirectPizza\PhpSdk\Exceptions\ValidationException;
@@ -12,9 +13,15 @@ use RedirectPizza\PhpSdk\RedirectPizza;
 
 class RedirectPizzaSdkTest extends TestCase
 {
-    protected function tearDown(): void
+    private ClientInterface|MockObject $guzzleClient;
+    private RedirectPizza $redirectPizzaClient;
+
+    protected function setUp(): void
     {
-        Mockery::close();
+        parent::setUp();
+
+        $this->guzzleClient = $this->createMock(Client::class);
+        $this->redirectPizzaClient =   new RedirectPizza('123', $this->guzzleClient);
     }
 
     public function test_it_can_instantiate_an_object()
@@ -26,31 +33,27 @@ class RedirectPizzaSdkTest extends TestCase
 
     public function test_making_basic_requests()
     {
-        $redirectPizza = new RedirectPizza('123', $http = Mockery::mock(Client::class));
+        $response = new Response(200, [], json_encode(['data' => [['id' => 1]]]));
 
-        $http->shouldReceive('request')->once()->with('GET', 'redirects', [])->andReturn(
-            $response = Mockery::mock(Response::class)
-        );
+        $this->guzzleClient
+            ->expects($this->once())
+            ->method('request')
+            ->willReturn($response);
 
-        $response->shouldReceive('getStatusCode')->once()->andReturn(200);
-        $response->shouldReceive('getBody')->once()->andReturn('{"data": [{"id": "1"}]}');
-
-        $this->assertCount(1, $redirectPizza->redirects());
+        $this->assertCount(1, $this->redirectPizzaClient->redirects());
     }
 
     public function test_handling_validation_errors()
     {
-        $redirectPizza = new RedirectPizza('123', $http = Mockery::mock(Client::class));
+        $response = new Response(422, [], json_encode(['name' => ['The destination is required.']]));
 
-        $http->shouldReceive('request')->once()->with('POST', 'redirects', [])->andReturn(
-            $response = Mockery::mock(Response::class)
-        );
-
-        $response->shouldReceive('getStatusCode')->andReturn(422);
-        $response->shouldReceive('getBody')->once()->andReturn('{"name": ["The destination is required."]}');
+        $this->guzzleClient
+            ->expects($this->once())
+            ->method('request')
+            ->willReturn($response);
 
         try {
-            $redirectPizza->createRedirect([]);
+            $this->redirectPizzaClient->createRedirect([]);
         } catch (ValidationException $e) {
         }
 
@@ -61,14 +64,14 @@ class RedirectPizzaSdkTest extends TestCase
     {
         $this->expectException(NotFoundException::class);
 
-        $redirectPizza = new RedirectPizza('123', $http = Mockery::mock(Client::class));
+        $response = new Response(404, [], json_encode([]));
 
-        $http->shouldReceive('request')->once()->with('GET', 'redirects/123', [])->andReturn(
-            $response = Mockery::mock(Response::class)
-        );
+        $this->guzzleClient
+            ->expects($this->once())
+            ->method('request')
+            ->with('GET', 'redirects/123')
+            ->willReturn($response);
 
-        $response->shouldReceive('getStatusCode')->andReturn(404);
-
-        $redirectPizza->redirect(123);
+        $this->redirectPizzaClient->redirect(123);
     }
 }

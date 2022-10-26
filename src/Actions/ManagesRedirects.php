@@ -32,7 +32,7 @@ trait ManagesRedirects
         return new Redirect($attributes, $this);
     }
 
-    public function deleteRedirect(int $redirectId)
+    public function deleteRedirect(int $redirectId): void
     {
         $this->delete("redirects/$redirectId");
     }

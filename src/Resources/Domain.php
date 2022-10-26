@@ -10,6 +10,10 @@ class Domain extends ApiResource
 
     public bool $isRootDomain;
 
+    public bool $hsts;
+
+    public bool $preventForeignEmbedding;
+
     public array $dns;
 
     public array $ssl;

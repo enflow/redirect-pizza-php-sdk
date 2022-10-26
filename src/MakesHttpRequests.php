@@ -2,6 +2,7 @@
 
 namespace RedirectPizza\PhpSdk;
 
+use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
 use RedirectPizza\PhpSdk\Exceptions\ApiException;
 use RedirectPizza\PhpSdk\Exceptions\NotFoundException;
@@ -34,11 +35,11 @@ trait MakesHttpRequests
         $response = $this->client->request(
             $verb,
             $uri,
-            empty($payload) ? [] : ['form_params' => $payload]
+            [RequestOptions::JSON => $payload],
         );
 
         if (! $this->isSuccessful($response)) {
-            return $this->handleRequestError($response);
+            $this->handleRequestError($response);
         }
 
         $responseBody = (string) $response->getBody();
@@ -58,6 +59,7 @@ trait MakesHttpRequests
     protected function handleRequestError(ResponseInterface $response): void
     {
         if ($response->getStatusCode() === 422) {
+            var_dump(json_decode((string) $response->getBody(), true));
             throw new ValidationException(json_decode((string) $response->getBody(), true));
         }
 

@@ -4,20 +4,16 @@ namespace RedirectPizza\PhpSdk;
 
 use GuzzleHttp\Client;
 use RedirectPizza\PhpSdk\Actions\ManagesRedirects;
+use RedirectPizza\PhpSdk\Actions\ManagesTeam;
 
 class RedirectPizza
 {
     use MakesHttpRequests;
     use ManagesRedirects;
+    use ManagesTeam;
 
-    public string $apiToken;
-
-    public Client $client;
-
-    public function __construct(string $apiToken, Client $client = null)
+    public function __construct(public string $apiToken, protected ?Client $client = null)
     {
-        $this->apiToken = $apiToken;
-
         $this->client = $client ?: new Client([
             'base_uri' => 'https://redirect.pizza/api/v1/',
             'http_errors' => false,
@@ -31,8 +27,6 @@ class RedirectPizza
 
     protected function transformCollection(array $collection, string $class): array
     {
-        return array_map(function ($attributes) use ($class) {
-            return new $class($attributes, $this);
-        }, $collection);
+        return array_map(fn($attributes) => new $class($attributes, $this), $collection);
     }
 }
