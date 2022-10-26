@@ -60,6 +60,7 @@ trait MakesHttpRequests
     {
         if ($response->getStatusCode() === 422) {
             var_dump(json_decode((string) $response->getBody(), true));
+
             throw new ValidationException(json_decode((string) $response->getBody(), true));
         }
 

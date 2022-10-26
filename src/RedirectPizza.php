@@ -27,6 +27,6 @@ class RedirectPizza
 
     protected function transformCollection(array $collection, string $class): array
     {
-        return array_map(fn($attributes) => new $class($attributes, $this), $collection);
+        return array_map(fn ($attributes) => new $class($attributes, $this), $collection);
     }
 }
