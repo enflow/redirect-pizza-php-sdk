@@ -20,17 +20,15 @@ class Redirect extends ApiResource
 
     public bool $tracking;
 
+    public array $tags;
+
     public function __construct(array $attributes, $redirectPizza = null)
     {
         parent::__construct($attributes, $redirectPizza);
 
-        $this->sources = array_map(function (array $checkAttributes) {
-            return new Source($checkAttributes);
-        }, $this->sources ?? []);
+        $this->sources = array_map(fn (array $checkAttributes) => new Source($checkAttributes), $this->sources ?? []);
 
-        $this->domains = array_map(function (array $checkAttributes) {
-            return new Domain($checkAttributes);
-        }, $this->domains ?? []);
+        $this->domains = array_map(fn (array $checkAttributes) => new Domain($checkAttributes), $this->domains ?? []);
     }
 
     public function update(array $data): void
