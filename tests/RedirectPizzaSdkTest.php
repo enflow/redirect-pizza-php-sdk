@@ -21,7 +21,7 @@ class RedirectPizzaSdkTest extends TestCase
         parent::setUp();
 
         $this->guzzleClient = $this->createMock(Client::class);
-        $this->redirectPizzaClient =   new RedirectPizza('123', $this->guzzleClient);
+        $this->redirectPizzaClient = new RedirectPizza('123', $this->guzzleClient);
     }
 
     public function test_it_can_instantiate_an_object()
