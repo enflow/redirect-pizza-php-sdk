@@ -1,6 +1,6 @@
-# An SDK to easily work with API from redirect.pizza
+# SDK to easily work with the redirect.pizza API
 
-[![redirect.pizza](https://user-images.githubusercontent.com/1583095/120214297-92af9300-c234-11eb-97e3-bbdaab060be9.png)](https://redirect.pizza?ref=github)
+[![redirect.pizza](https://redirect.pizza/favicons/open-graph.png)](https://redirect.pizza?ref=github)
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/enflow/redirect-pizza-php-sdk.svg?style=flat-square)](https://packagist.org/packages/enflow/redirect-pizza-php-sdk)
 ![GitHub Workflow Status](https://github.com/enflow/redirect-pizza-php-sdk/workflows/run-tests/badge.svg)
@@ -14,7 +14,7 @@
 ## Usage
 
 ```php
-$apiToken = ''; // You can find this token in your "API" page on https://redirect.pizza
+$apiToken = 'rpa_XXXXXXXXXXXXXXXXXXX'; // You can find this token on https://redirect.pizza/api
 
 $redirectPizza = new \RedirectPizza\PhpSdk\RedirectPizza($apiToken);
 
