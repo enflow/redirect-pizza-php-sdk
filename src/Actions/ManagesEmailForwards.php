@@ -8,12 +8,12 @@ trait ManagesEmailForwards
 {
     public function emailForwards(): array
     {
-        return $this->transformCollection($this->get('emailForwards')['data'], EmailForward::class);
+        return $this->transformCollection($this->get('email-forwards')['data'], EmailForward::class);
     }
 
-    public function EmailForward(int $EmailForwardId): EmailForward
+    public function EmailForward(int $emailForwardId): EmailForward
     {
-        $attributes = $this->get("email-forwards/{$EmailForwardId}")['data'];
+        $attributes = $this->get("email-forwards/{$emailForwardId}")['data'];
 
         return new EmailForward($attributes, $this);
     }
@@ -25,15 +25,15 @@ trait ManagesEmailForwards
         return new EmailForward($attributes, $this);
     }
 
-    public function updateEmailForward(int $EmailForwardId, array $data): EmailForward
+    public function updateEmailForward(int $emailForwardId, array $data): EmailForward
     {
-        $attributes = $this->put("email-forwards/{$EmailForwardId}", $data)['data'];
+        $attributes = $this->put("email-forwards/{$emailForwardId}", $data)['data'];
 
         return new EmailForward($attributes, $this);
     }
 
-    public function deleteEmailForward(int $EmailForwardId): void
+    public function deleteEmailForward(int $emailForwardId): void
     {
-        $this->delete("emailForwards/$EmailForwardId");
+        $this->delete("emailForwards/$emailForwardId");
     }
 }
