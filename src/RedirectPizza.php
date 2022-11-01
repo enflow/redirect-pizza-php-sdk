@@ -3,8 +3,8 @@
 namespace RedirectPizza\PhpSdk;
 
 use GuzzleHttp\Client;
-use RedirectPizza\PhpSdk\Actions\ManagesRedirects;
 use RedirectPizza\PhpSdk\Actions\ManagesEmailForwards;
+use RedirectPizza\PhpSdk\Actions\ManagesRedirects;
 use RedirectPizza\PhpSdk\Actions\ManagesTeam;
 
 class RedirectPizza
