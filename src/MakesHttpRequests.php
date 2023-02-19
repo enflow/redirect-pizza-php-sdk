@@ -5,7 +5,9 @@ namespace RedirectPizza\PhpSdk;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
 use RedirectPizza\PhpSdk\Exceptions\ApiException;
+use RedirectPizza\PhpSdk\Exceptions\FailedActionException;
 use RedirectPizza\PhpSdk\Exceptions\NotFoundException;
+use RedirectPizza\PhpSdk\Exceptions\UnauthorizedException;
 use RedirectPizza\PhpSdk\Exceptions\ValidationException;
 
 trait MakesHttpRequests
@@ -64,6 +66,14 @@ trait MakesHttpRequests
 
         if ($response->getStatusCode() === 404) {
             throw new NotFoundException();
+        }
+
+        if ($response->getStatusCode() === 400) {
+            throw new FailedActionException((string) $response->getBody());
+        }
+
+        if ($response->getStatusCode() === 401) {
+            throw new UnauthorizedException((string) $response->getBody());
         }
 
         throw new ApiException($response);
