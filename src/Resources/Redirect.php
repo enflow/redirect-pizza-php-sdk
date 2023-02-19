@@ -26,9 +26,9 @@ class Redirect extends ApiResource
     {
         parent::__construct($attributes, $redirectPizza);
 
-        $this->sources = array_map(fn (array $checkAttributes) => new Source($checkAttributes), $this->sources ?? []);
+        $this->sources = array_map(fn (array $sourceAttributes) => new Source($sourceAttributes, $redirectPizza), $this->sources ?? []);
 
-        $this->domains = array_map(fn (array $checkAttributes) => new Domain($checkAttributes), $this->domains ?? []);
+        $this->domains = array_map(fn (array $domainAttributes) => new Domain($domainAttributes, $redirectPizza), $this->domains ?? []);
     }
 
     public function update(array $data): void
