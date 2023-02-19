@@ -17,4 +17,9 @@ class Domain extends ApiResource
     public array $dns;
 
     public array $ssl;
+
+    public function checkDns(): Domain
+    {
+        return $this->redirectPizza->checkDomainDns($this->id);
+    }
 }
