@@ -6,10 +6,10 @@ jobs:
     test:
         runs-on: ${{ matrix.os }}
         strategy:
-            fail-fast: true
+            fail-fast: false
             matrix:
                 os: [ubuntu-latest]
-                php: [8.1]
+                php: [8.2, 8.1]
                 dependency-version: [prefer-lowest, prefer-stable]
 
         name: P${{ matrix.php }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
@@ -22,8 +22,14 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php }}
-                    extensions: dom, curl, libxml, mbstring, zip
+                    extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
                     coverage: none
 
+            -   name: Copy .env.example file
+                run: cp .env.example .env
+
             -   name: Install dependencies
-                run: composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source
+                run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
+
+            -   name: Run tests
+                run: vendor/bin/phpunit
