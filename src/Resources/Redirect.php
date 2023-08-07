@@ -22,6 +22,8 @@ class Redirect extends ApiResource
 
     public array $tags;
 
+    public ?string $notes;
+
     public function __construct(array $attributes, $redirectPizza = null)
     {
         parent::__construct($attributes, $redirectPizza);
