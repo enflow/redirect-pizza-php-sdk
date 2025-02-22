@@ -15,13 +15,13 @@
         }
     ],
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "guzzlehttp/guzzle": "^7.5"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.3",
         "mockery/mockery": "^1.5.1",
-        "phpunit/phpunit": "^10.5|^11.0"
+        "phpunit/phpunit": "^11.0"
     },
     "config": {
         "sort-packages": true
