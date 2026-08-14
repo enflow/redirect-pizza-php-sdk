@@ -14,7 +14,7 @@ class GetHitsTotalRequest extends Request
     public function __construct(
         protected ?string $start = null,
         protected ?string $end = null,
-        protected ?string $filter = null,
+        protected ?string $queryString = null,
     ) {
     }
 
@@ -28,7 +28,7 @@ class GetHitsTotalRequest extends Request
         return array_filter([
             'start' => $this->start,
             'end' => $this->end,
-            'query' => $this->filter,
+            'query' => $this->queryString,
         ], fn ($value) => $value !== null);
     }
 

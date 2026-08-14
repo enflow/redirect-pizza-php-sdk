@@ -13,7 +13,7 @@ class GetRedirectsRequest extends Request implements Paginatable
     protected Method $method = Method::GET;
 
     public function __construct(
-        protected ?string $filter = null,
+        protected ?string $queryString = null,
     ) {
     }
 
@@ -25,7 +25,7 @@ class GetRedirectsRequest extends Request implements Paginatable
     protected function defaultQuery(): array
     {
         return array_filter([
-            'query' => $this->filter,
+            'query' => $this->queryString,
         ], fn ($value) => $value !== null);
     }
 

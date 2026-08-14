@@ -16,9 +16,9 @@ use RedirectPizza\PhpSdk\Requests\Domains\UpdateDomainRequest;
 trait SupportsDomainsEndpoints
 {
     /** @return iterable<int, Domain> */
-    public function domains(): iterable
+    public function domains(?string $query = null): iterable
     {
-        $request = new GetDomainsRequest;
+        $request = new GetDomainsRequest($query);
 
         /** @var iterable<int, Domain> $items */
         $items = $this->paginate($request)->items();

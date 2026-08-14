@@ -17,7 +17,7 @@ class GetDimensionsRequest extends Request implements Paginatable
         protected AnalyticsDimension|string $dimension,
         protected ?string $start = null,
         protected ?string $end = null,
-        protected ?string $filter = null,
+        protected ?string $queryString = null,
     ) {
     }
 
@@ -35,7 +35,7 @@ class GetDimensionsRequest extends Request implements Paginatable
         return array_filter([
             'start' => $this->start,
             'end' => $this->end,
-            'query' => $this->filter,
+            'query' => $this->queryString,
         ], fn ($value) => $value !== null);
     }
 

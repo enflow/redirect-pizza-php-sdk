@@ -15,7 +15,7 @@ class GetRawHitsRequest extends Request implements Paginatable
     public function __construct(
         protected ?string $start = null,
         protected ?string $end = null,
-        protected ?string $filter = null,
+        protected ?string $queryString = null,
     ) {
     }
 
@@ -29,7 +29,7 @@ class GetRawHitsRequest extends Request implements Paginatable
         return array_filter([
             'start' => $this->start,
             'end' => $this->end,
-            'query' => $this->filter,
+            'query' => $this->queryString,
         ], fn ($value) => $value !== null);
     }
 

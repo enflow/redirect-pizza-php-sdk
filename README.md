@@ -108,6 +108,9 @@ $redirectPizza->deleteRedirect($redirectId);
 ```php
 $domains = $redirectPizza->domains();
 
+// Optional search/filter query (status:verified, status:unverified, tag:marketing, or free-text FQDN)
+$domains = $redirectPizza->domains('status:unverified example.com');
+
 $domain = $redirectPizza->domain($domainId);
 
 $domain = $redirectPizza->updateDomain($domainId, [
