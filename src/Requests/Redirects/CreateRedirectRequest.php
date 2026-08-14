@@ -17,8 +17,7 @@ class CreateRedirectRequest extends Request implements HasBody
 
     public function __construct(
         protected array $data,
-    ) {
-    }
+    ) {}
 
     public function resolveEndpoint(): string
     {

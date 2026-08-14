@@ -15,8 +15,7 @@ class User
         public string $accessType,
         public array $tags = [],
         public ?string $createdAt = null,
-    ) {
-    }
+    ) {}
 
     public static function fromResponse(array $data): self
     {
@@ -32,7 +31,7 @@ class User
     }
 
     /** @param  array<int, array<string, mixed>>  $items
-     *  @return array<int, self>
+     * @return array<int, self>
      */
     public static function collect(array $items): array
     {

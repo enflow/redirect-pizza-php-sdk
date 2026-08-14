@@ -11,8 +11,7 @@ class DeleteUserRequest extends Request
 
     public function __construct(
         protected int $userId,
-    ) {
-    }
+    ) {}
 
     public function resolveEndpoint(): string
     {

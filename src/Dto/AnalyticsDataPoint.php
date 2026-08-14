@@ -7,8 +7,7 @@ class AnalyticsDataPoint
     public function __construct(
         public string $key,
         public int $count,
-    ) {
-    }
+    ) {}
 
     public static function fromResponse(array $data): self
     {
@@ -19,7 +18,7 @@ class AnalyticsDataPoint
     }
 
     /** @param  array<int, array<string, mixed>>  $items
-     *  @return array<int, self>
+     * @return array<int, self>
      */
     public static function collect(array $items): array
     {

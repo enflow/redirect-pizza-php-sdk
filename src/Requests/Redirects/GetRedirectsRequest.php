@@ -14,8 +14,7 @@ class GetRedirectsRequest extends Request implements Paginatable
 
     public function __construct(
         protected ?string $queryString = null,
-    ) {
-    }
+    ) {}
 
     public function resolveEndpoint(): string
     {

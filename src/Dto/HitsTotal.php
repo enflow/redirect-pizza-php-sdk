@@ -7,8 +7,7 @@ class HitsTotal
     public function __construct(
         public int $count,
         public array $filters = [],
-    ) {
-    }
+    ) {}
 
     public static function fromResponse(array $data): self
     {

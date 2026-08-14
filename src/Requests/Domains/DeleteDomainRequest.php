@@ -11,8 +11,7 @@ class DeleteDomainRequest extends Request
 
     public function __construct(
         protected int $domainId,
-    ) {
-    }
+    ) {}
 
     public function resolveEndpoint(): string
     {

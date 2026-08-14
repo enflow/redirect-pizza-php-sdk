@@ -11,7 +11,7 @@ class ValidationException extends RedirectPizzaException
 
     public function __construct(Response $response)
     {
-        $data = $response->json() ?? [];
+        $data = $response->json();
 
         $this->errors = $data['errors'] ?? [];
 

@@ -93,7 +93,8 @@ class RedirectPizza extends Connector implements HasPagination
     public function paginate(Request $request): Paginator
     {
         if ($request instanceof GetRawHitsRequest) {
-            return new class(connector: $this, request: $request) extends CursorPaginator {
+            return new class(connector: $this, request: $request) extends CursorPaginator
+            {
                 protected function isLastPage(Response $response): bool
                 {
                     return $response->json('meta.next_cursor') === null;
@@ -111,7 +112,8 @@ class RedirectPizza extends Connector implements HasPagination
             };
         }
 
-        return new class(connector: $this, request: $request) extends PagedPaginator {
+        return new class(connector: $this, request: $request) extends PagedPaginator
+        {
             protected function isLastPage(Response $response): bool
             {
                 $currentPage = $response->json('meta.current_page');

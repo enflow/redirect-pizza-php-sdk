@@ -12,8 +12,7 @@ class ResumeSourceRequest extends Request
     public function __construct(
         protected int $redirectId,
         protected int $sourceId,
-    ) {
-    }
+    ) {}
 
     public function resolveEndpoint(): string
     {

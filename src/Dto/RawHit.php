@@ -31,8 +31,7 @@ class RawHit
         public ?string $operatingSystem = null,
         public ?string $platform = null,
         public ?string $deviceType = null,
-    ) {
-    }
+    ) {}
 
     public static function fromResponse(array $data): self
     {
@@ -67,7 +66,7 @@ class RawHit
     }
 
     /** @param  array<int, array<string, mixed>>  $items
-     *  @return array<int, self>
+     * @return array<int, self>
      */
     public static function collect(array $items): array
     {

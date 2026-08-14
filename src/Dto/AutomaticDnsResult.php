@@ -7,8 +7,7 @@ class AutomaticDnsResult
     public function __construct(
         public bool $successful,
         public string $output,
-    ) {
-    }
+    ) {}
 
     public static function fromResponse(array $data): self
     {

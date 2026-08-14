@@ -16,8 +16,7 @@ class Domain
         public array $ssl = [],
         public ?string $createdAt = null,
         public ?string $updatedAt = null,
-    ) {
-    }
+    ) {}
 
     public static function fromResponse(array $data): self
     {
@@ -37,7 +36,7 @@ class Domain
     }
 
     /** @param  array<int, array<string, mixed>>  $items
-     *  @return array<int, self>
+     * @return array<int, self>
      */
     public static function collect(array $items): array
     {

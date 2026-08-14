@@ -13,8 +13,7 @@ class GetRedirectRequest extends Request
 
     public function __construct(
         protected int $redirectId,
-    ) {
-    }
+    ) {}
 
     public function resolveEndpoint(): string
     {

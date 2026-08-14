@@ -18,8 +18,7 @@ class UpdateDomainRequest extends Request implements HasBody
     public function __construct(
         protected int $domainId,
         protected array $data,
-    ) {
-    }
+    ) {}
 
     public function resolveEndpoint(): string
     {

@@ -14,8 +14,7 @@ class TestRedirectRequest extends Request
 
     public function __construct(
         protected string $url,
-    ) {
-    }
+    ) {}
 
     public function resolveEndpoint(): string
     {

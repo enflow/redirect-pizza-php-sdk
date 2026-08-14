@@ -18,8 +18,7 @@ class UpdateUserRequest extends Request implements HasBody
     public function __construct(
         protected int $userId,
         protected array $data,
-    ) {
-    }
+    ) {}
 
     public function resolveEndpoint(): string
     {

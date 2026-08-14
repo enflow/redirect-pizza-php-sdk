@@ -9,8 +9,7 @@ class QrCode
         public string $image,
         public ?string $destination = null,
         public ?string $filename = null,
-    ) {
-    }
+    ) {}
 
     public static function fromResponse(array $data): self
     {

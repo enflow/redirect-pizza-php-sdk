@@ -15,8 +15,7 @@ class RedirectTestResult
         public ?string $explanation = null,
         public ?string $error = null,
         public ?string $nextTestUrl = null,
-    ) {
-    }
+    ) {}
 
     public static function fromResponse(array $data): self
     {

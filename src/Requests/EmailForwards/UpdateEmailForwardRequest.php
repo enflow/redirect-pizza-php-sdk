@@ -18,8 +18,7 @@ class UpdateEmailForwardRequest extends Request implements HasBody
     public function __construct(
         protected int $emailForwardId,
         protected array $data,
-    ) {
-    }
+    ) {}
 
     public function resolveEndpoint(): string
     {

@@ -17,8 +17,7 @@ class Team
         public array $users = [],
         public array $nameservers = [],
         public array $settings = [],
-    ) {
-    }
+    ) {}
 
     public static function fromResponse(array $data): self
     {

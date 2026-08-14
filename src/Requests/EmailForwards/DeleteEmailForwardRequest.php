@@ -11,8 +11,7 @@ class DeleteEmailForwardRequest extends Request
 
     public function __construct(
         protected int $emailForwardId,
-    ) {
-    }
+    ) {}
 
     public function resolveEndpoint(): string
     {

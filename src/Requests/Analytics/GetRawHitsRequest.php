@@ -16,8 +16,7 @@ class GetRawHitsRequest extends Request implements Paginatable
         protected ?string $start = null,
         protected ?string $end = null,
         protected ?string $queryString = null,
-    ) {
-    }
+    ) {}
 
     public function resolveEndpoint(): string
     {

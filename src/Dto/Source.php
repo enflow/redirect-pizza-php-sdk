@@ -9,8 +9,7 @@ class Source
         public string $url,
         public bool $regex = false,
         public bool $paused = false,
-    ) {
-    }
+    ) {}
 
     public static function fromResponse(array $data): self
     {
@@ -23,7 +22,7 @@ class Source
     }
 
     /** @param  array<int, array<string, mixed>>  $items
-     *  @return array<int, self>
+     * @return array<int, self>
      */
     public static function collect(array $items): array
     {

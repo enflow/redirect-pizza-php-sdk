@@ -15,8 +15,7 @@ class GenerateQrCodeRequest extends Request
     public function __construct(
         protected string $url,
         protected string $format = 'json',
-    ) {
-    }
+    ) {}
 
     public function resolveEndpoint(): string
     {
