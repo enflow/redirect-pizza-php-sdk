@@ -83,11 +83,19 @@ class RedirectPizza extends Connector implements HasPagination
             return new ValidationException($response);
         }
 
-        return new RedirectPizzaException(
-            $response,
-            $senderException?->getMessage() ?? 'Request failed',
-            $senderException?->getCode() ?? 0,
+        $body = $response->body();
+        $message = sprintf(
+            'The API call failed with status code %d%s',
+            $response->status(),
+            $body !== '' ? ': '.$body : '',
         );
+
+        $decoded = json_decode($body, true);
+        if (is_array($decoded) && isset($decoded['message']) && is_string($decoded['message'])) {
+            $message = $decoded['message'];
+        }
+
+        return new RedirectPizzaException($response, $message, $response->status());
     }
 
     public function paginate(Request $request): Paginator

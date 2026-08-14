@@ -88,11 +88,34 @@ it('handles validation errors', function () {
 
 it('handles not found errors', function () {
     MockClient::global([
-        GetRedirectRequest::class => MockResponse::make([], 404),
+        GetRedirectRequest::class => MockResponse::make([
+            'message' => 'Resource not found',
+        ], 404),
     ]);
 
-    $this->redirectPizza->redirect(123);
-})->throws(RedirectPizzaException::class);
+    try {
+        $this->redirectPizza->redirect(123);
+        $this->fail('Expected RedirectPizzaException was not thrown.');
+    } catch (RedirectPizzaException $e) {
+        expect($e->getCode())->toBe(404)
+            ->and($e->getMessage())->toBe('Resource not found')
+            ->and($e->response->status())->toBe(404);
+    }
+});
+
+it('includes status and body for non-json failures', function () {
+    MockClient::global([
+        GetRedirectRequest::class => MockResponse::make('upstream unavailable', 503),
+    ]);
+
+    try {
+        $this->redirectPizza->redirect(123);
+        $this->fail('Expected RedirectPizzaException was not thrown.');
+    } catch (RedirectPizzaException $e) {
+        expect($e->getCode())->toBe(503)
+            ->and($e->getMessage())->toBe('The API call failed with status code 503: upstream unavailable');
+    }
+});
 
 it('can get a single redirect', function () {
     MockClient::global([
