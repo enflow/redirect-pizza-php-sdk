@@ -158,9 +158,39 @@ $dimensions = $redirectPizza->dimensions(
     start: '2025-04-30',
     end: '2025-05-20',
 );
-
-$rawHits = $redirectPizza->rawHits(start: '2025-04-30', end: '2025-05-20', query: 'redirect:123');
 ```
+
+#### Raw hits and cursor pagination
+
+Unlike redirects, domains, and users (page-based), raw hits use **cursor pagination**. The API returns `meta.next_cursor`; the SDK follows that cursor until it is `null`.
+
+`rawHits()` returns an iterable that walks every page for you:
+
+```php
+use RedirectPizza\PhpSdk\Dto\RawHit;
+use RedirectPizza\PhpSdk\Requests\Analytics\GetRawHitsRequest;
+
+// Automatically requests the next page while meta.next_cursor is present
+foreach ($redirectPizza->rawHits(start: '2025-04-30', end: '2025-05-20', query: 'redirect:123') as $hit) {
+    /** @var RawHit $hit */
+    echo "{$hit->createdAt} {$hit->fullUrl}\n";
+}
+```
+
+For more control (for example limiting page size), build the Saloon paginator yourself:
+
+```php
+$request = new GetRawHitsRequest(start: '2025-04-30', end: '2025-05-20');
+
+$paginator = $redirectPizza->paginate($request);
+$paginator->setPerPageLimit(100);
+
+foreach ($paginator->items() as $hit) {
+    // ...
+}
+```
+
+Each page is fetched only as you iterate. Stop early by `break`ing out of the loop when you have enough results.
 
 ### Team
 
