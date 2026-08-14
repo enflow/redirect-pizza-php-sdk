@@ -2,17 +2,62 @@
 
 namespace RedirectPizza\PhpSdk\Exceptions;
 
-use Exception;
+use Saloon\Http\Response;
 
-class ValidationException extends Exception
+class ValidationException extends RedirectPizzaException
 {
-    public function __construct(public array $errors)
+    /** @var array<string, array<int, string>> */
+    protected array $errors = [];
+
+    public function __construct(Response $response)
     {
-        parent::__construct($this->errors['message'] ?? 'The given data failed to pass validation.');
+        $data = $response->json() ?? [];
+
+        $this->errors = $data['errors'] ?? [];
+
+        parent::__construct($response, $this->buildMessage($data), $response->status());
     }
 
-    public function errors(): array
+    protected function buildMessage(array $data): string
+    {
+        $baseMessage = $data['message'] ?? 'Validation failed';
+
+        if ($this->errors === []) {
+            return $baseMessage;
+        }
+
+        $fieldMessages = [];
+        foreach ($this->errors as $field => $messages) {
+            $fieldMessages[] = "{$field}: ".implode(', ', $messages);
+        }
+
+        return $baseMessage.' ('.implode('; ', $fieldMessages).')';
+    }
+
+    /** @return array<string, array<int, string>> */
+    public function getErrors(): array
     {
         return $this->errors;
+    }
+
+    /** @return array<int, string> */
+    public function getErrorsForField(string $field): array
+    {
+        return $this->errors[$field] ?? [];
+    }
+
+    public function hasErrorsForField(string $field): bool
+    {
+        return isset($this->errors[$field]);
+    }
+
+    /** @return array<int, string> */
+    public function getAllErrorMessages(): array
+    {
+        if ($this->errors === []) {
+            return [];
+        }
+
+        return array_merge(...array_values($this->errors));
     }
 }

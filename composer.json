@@ -16,11 +16,11 @@
     ],
     "require": {
         "php": "^8.3",
-        "guzzlehttp/guzzle": "^7.5"
+        "saloonphp/pagination-plugin": "^2.2",
+        "saloonphp/saloon": "^4.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.3",
-        "mockery/mockery": "^1.5.1",
         "phpunit/phpunit": "^11.0"
     },
     "config": {
