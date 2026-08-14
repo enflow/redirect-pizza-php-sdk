@@ -2,15 +2,19 @@
 
 namespace RedirectPizza\PhpSdk\Dto;
 
-class EmailForward
+class User
 {
+    /**
+     * @param  array<int, string>  $tags
+     */
     public function __construct(
         public int $id,
-        public string $alias,
-        public string $destination,
-        public ?Domain $domain = null,
+        public string $email,
+        public string $role,
+        public string $status,
+        public string $accessType,
+        public array $tags = [],
         public ?string $createdAt = null,
-        public ?string $updatedAt = null,
     ) {
     }
 
@@ -18,13 +22,12 @@ class EmailForward
     {
         return new self(
             id: $data['id'],
-            alias: $data['alias'],
-            destination: $data['destination'],
-            domain: isset($data['domain']) && is_array($data['domain'])
-                ? Domain::fromResponse($data['domain'])
-                : null,
+            email: $data['email'],
+            role: $data['role'],
+            status: $data['status'],
+            accessType: $data['access_type'],
+            tags: $data['tags'] ?? [],
             createdAt: $data['created_at'] ?? null,
-            updatedAt: $data['updated_at'] ?? null,
         );
     }
 

@@ -76,6 +76,9 @@ For all other errors, the SDK will throw a `\RedirectPizza\PhpSdk\Exceptions\Red
 // returns an iterator of RedirectPizza\PhpSdk\Dto\Redirect
 $redirects = $redirectPizza->redirects();
 
+// Optional search/filter query (status:active, tag:marketing, source:..., destination:...)
+$redirects = $redirectPizza->redirects('status:active tag:marketing');
+
 $redirect = $redirectPizza->createRedirect([
     'sources' => ['old-source.nl'],
     'destination' => 'new-fancy-site.nl',
@@ -92,6 +95,11 @@ $redirect = $redirectPizza->updateRedirect($redirectId, [
     'keep_query_string' => true,
 ]);
 
+$redirectPizza->pauseRedirect($redirectId);
+$redirectPizza->resumeRedirect($redirectId);
+$redirectPizza->pauseSource($redirectId, $sourceId);
+$redirectPizza->resumeSource($redirectId, $sourceId);
+
 $redirectPizza->deleteRedirect($redirectId);
 ```
 
@@ -102,7 +110,17 @@ $domains = $redirectPizza->domains();
 
 $domain = $redirectPizza->domain($domainId);
 
+$domain = $redirectPizza->updateDomain($domainId, [
+    'hsts' => ['status' => 'enabled', 'max_age' => 31536000],
+    'waf' => ['status' => 'inherit'],
+]);
+
 $domain = $redirectPizza->checkDomainDns($domainId);
+
+$result = $redirectPizza->applyAutomaticDns($domainId);
+// $result->successful, $result->output
+
+$redirectPizza->deleteDomain($domainId);
 ```
 
 ### Email forwards
@@ -125,12 +143,66 @@ $emailForward = $redirectPizza->updateEmailForward($emailForwardId, [
 $redirectPizza->deleteEmailForward($emailForwardId);
 ```
 
+### Analytics (beta)
+
+```php
+use RedirectPizza\PhpSdk\Enums\AnalyticsDimension;
+
+$hits = $redirectPizza->hitsTotal(start: '2025-04-30', end: '2025-05-20');
+echo $hits->count;
+
+$series = $redirectPizza->timeSeries(start: '2025-04-30', end: '2025-05-20');
+
+$dimensions = $redirectPizza->dimensions(
+    AnalyticsDimension::Countries,
+    start: '2025-04-30',
+    end: '2025-05-20',
+);
+
+$rawHits = $redirectPizza->rawHits(start: '2025-04-30', end: '2025-05-20', query: 'redirect:123');
+```
+
 ### Team
 
 ```php
 $team = $redirectPizza->team();
 
-echo $team->name;
+$team = $redirectPizza->updateTeam([
+    'name' => 'Acme Inc',
+    'summary_frequency' => 'weekly',
+]);
+```
+
+### Users
+
+```php
+$users = $redirectPizza->users();
+
+$user = $redirectPizza->inviteUser([
+    'email' => 'colleague@example.com',
+    'role' => 'member',
+    'access_type' => 'all',
+]);
+
+$user = $redirectPizza->updateUser($userId, [
+    'role' => 'readonly',
+    'access_type' => 'allowed',
+    'tags' => ['marketing'],
+]);
+
+$redirectPizza->deleteUser($userId);
+```
+
+### Utils
+
+These endpoints do not require authentication.
+
+```php
+$result = $redirectPizza->testRedirect('https://example.com');
+echo $result->status; // success, redirecting, upgrading, error
+
+$qr = $redirectPizza->qrCode('https://example.com'); // JSON metadata + base64 image
+// or binary: $response = $redirectPizza->qrCode('https://example.com', format: 'png');
 ```
 
 ## Security

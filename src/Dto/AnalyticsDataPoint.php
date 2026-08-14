@@ -2,23 +2,19 @@
 
 namespace RedirectPizza\PhpSdk\Dto;
 
-class Source
+class AnalyticsDataPoint
 {
     public function __construct(
-        public int $id,
-        public string $url,
-        public bool $regex = false,
-        public bool $paused = false,
+        public string $key,
+        public int $count,
     ) {
     }
 
     public static function fromResponse(array $data): self
     {
         return new self(
-            id: $data['id'],
-            url: $data['url'],
-            regex: $data['regex'] ?? false,
-            paused: $data['paused'] ?? false,
+            key: (string) $data['key'],
+            count: (int) $data['count'],
         );
     }
 

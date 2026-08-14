@@ -1,37 +1,41 @@
 <?php
 
-namespace RedirectPizza\PhpSdk\Requests\Redirects;
+namespace RedirectPizza\PhpSdk\Requests\Analytics;
 
-use RedirectPizza\PhpSdk\Dto\Redirect;
+use RedirectPizza\PhpSdk\Dto\RawHit;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\Http\Response;
 use Saloon\PaginationPlugin\Contracts\Paginatable;
 
-class GetRedirectsRequest extends Request implements Paginatable
+class GetRawHitsRequest extends Request implements Paginatable
 {
     protected Method $method = Method::GET;
 
     public function __construct(
+        protected ?string $start = null,
+        protected ?string $end = null,
         protected ?string $filter = null,
     ) {
     }
 
     public function resolveEndpoint(): string
     {
-        return '/redirects';
+        return '/analytics/raw';
     }
 
     protected function defaultQuery(): array
     {
         return array_filter([
+            'start' => $this->start,
+            'end' => $this->end,
             'query' => $this->filter,
         ], fn ($value) => $value !== null);
     }
 
-    /** @return array<int, Redirect> */
+    /** @return array<int, RawHit> */
     public function createDtoFromResponse(Response $response): array
     {
-        return Redirect::collect($response->json('data') ?? []);
+        return RawHit::collect($response->json('data') ?? []);
     }
 }
