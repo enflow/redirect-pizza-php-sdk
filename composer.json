@@ -16,15 +16,13 @@
     ],
     "require": {
         "php": "^8.3",
-        "guzzlehttp/guzzle": "^7.5"
+        "saloonphp/pagination-plugin": "^2.2",
+        "saloonphp/saloon": "^4.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.3",
-        "mockery/mockery": "^1.5.1",
-        "phpunit/phpunit": "^11.0"
-    },
-    "config": {
-        "sort-packages": true
+        "laravel/pint": "^1.27",
+        "pestphp/pest": "^2.35|^3.8.2",
+        "phpstan/phpstan": "^2.1"
     },
     "autoload": {
         "psr-4": {
@@ -37,7 +35,17 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit",
-        "format": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
+        "format": "vendor/bin/pint",
+        "test": "vendor/bin/pest -p",
+        "analyse": "vendor/bin/phpstan analyse",
+        "baseline": "vendor/bin/phpstan analyse --generate-baseline"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true,
+            "composer/package-versions-deprecated": true,
+            "pestphp/pest-plugin": true
+        }
     }
 }

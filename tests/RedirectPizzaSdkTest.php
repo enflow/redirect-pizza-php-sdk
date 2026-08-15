@@ -1,77 +1,286 @@
 <?php
 
-namespace RedirectPizza\PhpSdk\Tests;
-
-use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
-use RedirectPizza\PhpSdk\Exceptions\NotFoundException;
+use RedirectPizza\PhpSdk\Dto\HitsTotal;
+use RedirectPizza\PhpSdk\Dto\QrCode;
+use RedirectPizza\PhpSdk\Dto\Redirect;
+use RedirectPizza\PhpSdk\Dto\RedirectTestResult;
+use RedirectPizza\PhpSdk\Dto\User;
+use RedirectPizza\PhpSdk\Enums\AnalyticsDimension;
+use RedirectPizza\PhpSdk\Exceptions\RedirectPizzaException;
 use RedirectPizza\PhpSdk\Exceptions\ValidationException;
 use RedirectPizza\PhpSdk\RedirectPizza;
+use RedirectPizza\PhpSdk\Requests\Analytics\GetDimensionsRequest;
+use RedirectPizza\PhpSdk\Requests\Analytics\GetHitsTotalRequest;
+use RedirectPizza\PhpSdk\Requests\Redirects\CreateRedirectRequest;
+use RedirectPizza\PhpSdk\Requests\Redirects\GetRedirectRequest;
+use RedirectPizza\PhpSdk\Requests\Redirects\GetRedirectsRequest;
+use RedirectPizza\PhpSdk\Requests\Redirects\PauseRedirectRequest;
+use RedirectPizza\PhpSdk\Requests\Users\GetUsersRequest;
+use RedirectPizza\PhpSdk\Requests\Utils\GenerateQrCodeRequest;
+use RedirectPizza\PhpSdk\Requests\Utils\TestRedirectRequest;
+use Saloon\Http\Faking\MockClient;
+use Saloon\Http\Faking\MockResponse;
 
-class RedirectPizzaSdkTest extends TestCase
-{
-    private ClientInterface|MockObject $guzzleClient;
-    private RedirectPizza $redirectPizzaClient;
+beforeEach(function () {
+    $this->redirectPizza = redirectPizzaMock();
+});
 
-    protected function setUp(): void
-    {
-        parent::setUp();
+afterEach(function () {
+    MockClient::destroyGlobal();
+});
 
-        $this->guzzleClient = $this->createMock(Client::class);
-        $this->redirectPizzaClient = new RedirectPizza('123', $this->guzzleClient);
+it('can instantiate an object', function () {
+    expect(new RedirectPizza('api-token'))->toBeInstanceOf(RedirectPizza::class);
+});
+
+it('can make basic requests', function () {
+    MockClient::global([
+        GetRedirectsRequest::class => MockResponse::make([
+            'data' => [
+                [
+                    'id' => 1,
+                    'sources' => [],
+                    'domains' => [],
+                    'destination' => 'https://example.com',
+                    'redirect_type' => 'permanent',
+                    'keep_query_string' => false,
+                    'uri_forwarding' => false,
+                    'tracking' => true,
+                    'paused' => false,
+                    'tags' => [],
+                    'notes' => null,
+                ],
+            ],
+            'meta' => [
+                'current_page' => 1,
+                'last_page' => 1,
+            ],
+        ]),
+    ]);
+
+    $redirects = iterator_to_array($this->redirectPizza->redirects());
+
+    expect($redirects)->toHaveCount(1)
+        ->and($redirects[0])->toBeInstanceOf(Redirect::class)
+        ->and($redirects[0]->id)->toBe(1)
+        ->and($redirects[0]->destination)->toBe('https://example.com');
+});
+
+it('handles validation errors', function () {
+    MockClient::global([
+        CreateRedirectRequest::class => MockResponse::make([
+            'message' => 'The given data was invalid.',
+            'errors' => [
+                'destination' => ['The destination is required.'],
+            ],
+        ], 422),
+    ]);
+
+    try {
+        $this->redirectPizza->createRedirect([]);
+        $this->fail('Expected ValidationException was not thrown.');
+    } catch (ValidationException $e) {
+        expect($e->hasErrorsForField('destination'))->toBeTrue()
+            ->and($e->getErrorsForField('destination'))->toBe(['The destination is required.'])
+            ->and($e->getMessage())->toContain('destination');
     }
+});
 
-    public function test_it_can_instantiate_an_object()
-    {
-        $sdk = new RedirectPizza('api-token');
+it('handles not found errors', function () {
+    MockClient::global([
+        GetRedirectRequest::class => MockResponse::make([
+            'message' => 'Resource not found',
+        ], 404),
+    ]);
 
-        $this->assertTrue(is_object($sdk));
+    try {
+        $this->redirectPizza->redirect(123);
+        $this->fail('Expected RedirectPizzaException was not thrown.');
+    } catch (RedirectPizzaException $e) {
+        expect($e->getCode())->toBe(404)
+            ->and($e->getMessage())->toBe('Resource not found')
+            ->and($e->response->status())->toBe(404);
     }
+});
 
-    public function test_making_basic_requests()
-    {
-        $response = new Response(200, [], json_encode(['data' => [['id' => 1]]]));
+it('includes status and body for non-json failures', function () {
+    MockClient::global([
+        GetRedirectRequest::class => MockResponse::make('upstream unavailable', 503),
+    ]);
 
-        $this->guzzleClient
-            ->expects($this->once())
-            ->method('request')
-            ->willReturn($response);
-
-        $this->assertCount(1, $this->redirectPizzaClient->redirects());
+    try {
+        $this->redirectPizza->redirect(123);
+        $this->fail('Expected RedirectPizzaException was not thrown.');
+    } catch (RedirectPizzaException $e) {
+        expect($e->getCode())->toBe(503)
+            ->and($e->getMessage())->toBe('The API call failed with status code 503: upstream unavailable');
     }
+});
 
-    public function test_handling_validation_errors()
-    {
-        $response = new Response(422, [], json_encode(['name' => ['The destination is required.']]));
+it('can get a single redirect', function () {
+    MockClient::global([
+        GetRedirectRequest::class => MockResponse::make([
+            'data' => [
+                'id' => 42,
+                'sources' => [
+                    ['id' => 1, 'url' => 'old.example.com', 'regex' => false, 'paused' => true],
+                ],
+                'domains' => [
+                    [
+                        'id' => 10,
+                        'fqdn' => 'old.example.com',
+                        'is_root_domain' => false,
+                        'hsts' => true,
+                        'prevent_foreign_embedding' => false,
+                        'referrer_policy' => 'no-referrer-when-downgrade',
+                        'settings' => ['waf' => ['status' => 'inherit']],
+                        'dns' => ['verified' => true],
+                        'ssl' => ['active' => true],
+                    ],
+                ],
+                'destination' => 'https://new.example.com',
+                'redirect_type' => 'permanent',
+                'keep_query_string' => true,
+                'uri_forwarding' => false,
+                'tracking' => true,
+                'paused' => true,
+                'tags' => ['marketing'],
+                'notes' => 'Legacy domain',
+            ],
+        ]),
+    ]);
 
-        $this->guzzleClient
-            ->expects($this->once())
-            ->method('request')
-            ->willReturn($response);
+    $redirect = $this->redirectPizza->redirect(42);
 
-        try {
-            $this->redirectPizzaClient->createRedirect([]);
-        } catch (ValidationException $e) {
-        }
+    expect($redirect->id)->toBe(42)
+        ->and($redirect->paused)->toBeTrue()
+        ->and($redirect->sources[0]->paused)->toBeTrue()
+        ->and($redirect->domains[0]->referrerPolicy)->toBe('no-referrer-when-downgrade')
+        ->and($redirect->tags)->toBe(['marketing']);
+});
 
-        $this->assertEquals(['name' => ['The destination is required.']], $e->errors());
-    }
+it('can pause a redirect', function () {
+    $mockClient = MockClient::global([
+        PauseRedirectRequest::class => MockResponse::make('', 204),
+    ]);
 
-    public function test_handling_404_errors()
-    {
-        $this->expectException(NotFoundException::class);
+    expect($this->redirectPizza->pauseRedirect(42))->toBe($this->redirectPizza);
+    $mockClient->assertSent(PauseRedirectRequest::class);
+});
 
-        $response = new Response(404, [], json_encode([]));
+it('can get hits total', function () {
+    MockClient::global([
+        GetHitsTotalRequest::class => MockResponse::make([
+            'data' => ['count' => 150],
+            'filters' => ['start' => '2025-04-30', 'end' => '2025-05-20', 'query' => null],
+        ]),
+    ]);
 
-        $this->guzzleClient
-            ->expects($this->once())
-            ->method('request')
-            ->with('GET', 'redirects/123')
-            ->willReturn($response);
+    $hits = $this->redirectPizza->hitsTotal(start: '2025-04-30', end: '2025-05-20');
 
-        $this->redirectPizzaClient->redirect(123);
-    }
-}
+    expect($hits)->toBeInstanceOf(HitsTotal::class)
+        ->and($hits->count)->toBe(150);
+});
+
+it('can get dimension analytics', function () {
+    MockClient::global([
+        GetDimensionsRequest::class => MockResponse::make([
+            'data' => [
+                ['key' => 'NL', 'count' => 10],
+                ['key' => 'US', 'count' => 5],
+            ],
+            'meta' => [
+                'current_page' => 1,
+                'per_page' => 10,
+                'from' => 1,
+                'to' => 2,
+            ],
+        ]),
+    ]);
+
+    $points = iterator_to_array($this->redirectPizza->dimensions(AnalyticsDimension::Countries));
+
+    expect($points)->toHaveCount(2)
+        ->and($points[0]->key)->toBe('NL')
+        ->and($points[0]->count)->toBe(10);
+});
+
+it('can list users', function () {
+    MockClient::global([
+        GetUsersRequest::class => MockResponse::make([
+            'data' => [
+                [
+                    'id' => 1,
+                    'email' => 'member@example.com',
+                    'role' => 'member',
+                    'status' => 'active',
+                    'access_type' => 'all',
+                    'tags' => [],
+                    'created_at' => null,
+                ],
+            ],
+            'meta' => [
+                'current_page' => 1,
+                'last_page' => 1,
+            ],
+        ]),
+    ]);
+
+    $users = iterator_to_array($this->redirectPizza->users());
+
+    expect($users)->toHaveCount(1)
+        ->and($users[0])->toBeInstanceOf(User::class)
+        ->and($users[0]->email)->toBe('member@example.com');
+});
+
+it('can test a redirect', function () {
+    MockClient::global([
+        TestRedirectRequest::class => MockResponse::make([
+            'url' => 'https://example.com',
+            'status_code' => 301,
+            'status' => 'redirecting',
+            'redirect' => [
+                'to' => 'https://destination.com',
+                'via_redirect_pizza' => true,
+                'hsts' => false,
+                'prevent_foreign_embedding' => false,
+                'removed_hops' => false,
+            ],
+            'headers' => ['Location' => 'https://destination.com'],
+            'duration' => 0.12,
+            'probe' => [
+                'name' => 'New York (US)',
+                'location' => 'ewr',
+                'city' => 'New York',
+                'country' => 'US',
+                'continent' => 'North America',
+            ],
+            'explanation' => 'Redirected',
+            'error' => null,
+            'next_test_url' => 'https://redirect.pizza/api/v1/tester?url=https%3A%2F%2Fdestination.com',
+        ]),
+    ]);
+
+    $result = $this->redirectPizza->testRedirect('https://example.com');
+
+    expect($result)->toBeInstanceOf(RedirectTestResult::class)
+        ->and($result->status)->toBe('redirecting')
+        ->and($result->statusCode)->toBe(301)
+        ->and($result->redirect['to'])->toBe('https://destination.com');
+});
+
+it('can generate a qr code', function () {
+    MockClient::global([
+        GenerateQrCodeRequest::class => MockResponse::make([
+            'url' => 'https://example.com',
+            'image' => 'data:image/png;base64,abc',
+            'destination' => 'https://example.com',
+            'filename' => 'qr-code-example-com',
+        ]),
+    ]);
+
+    $qr = $this->redirectPizza->qrCode('https://example.com');
+
+    expect($qr)->toBeInstanceOf(QrCode::class)
+        ->and($qr->image)->toBe('data:image/png;base64,abc');
+});

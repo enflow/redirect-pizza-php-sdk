@@ -7,21 +7,13 @@
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Total Downloads](https://img.shields.io/packagist/dt/enflow/redirect-pizza-php-sdk.svg?style=flat-square)](https://packagist.org/packages/enflow/redirect-pizza-php-sdk)
 
-## Installation
-
-```composer require enflow/redirect-pizza-php-sdk```
-
-## Usage
+This package is the official PHP SDK for the redirect.pizza API, built with Saloon v4.
 
 ```php
-$apiToken = 'rpa_XXXXXXXXXXXXXXXXXXX'; // You can find this token on https://redirect.pizza/api
+use RedirectPizza\PhpSdk\RedirectPizza;
 
-$redirectPizza = new \RedirectPizza\PhpSdk\RedirectPizza($apiToken);
+$redirectPizza = new RedirectPizza('your-api-token');
 
-// List all redirects
-$redirectPizza->redirects();
-
-// Create redirect
 $redirect = $redirectPizza->createRedirect([
     'sources' => ['old-source.nl'],
     'destination' => 'new-fancy-site.nl',
@@ -29,19 +21,221 @@ $redirect = $redirectPizza->createRedirect([
     'keep_query_string' => false,
 ]);
 
-// Fetch redirect
-$redirectPizza->redirect($redirect->id);
+// returns an iterator of RedirectPizza\PhpSdk\Dto\Redirect
+$redirects = $redirectPizza->redirects();
 
-// Update redirect
-$redirect->update([
+foreach ($redirects as $redirect) {
+    echo "Redirect: {$redirect->destination} (ID: {$redirect->id})\n";
+}
+```
+
+Behind the scenes, the SDK uses [Saloon](https://docs.saloon.dev) to make the HTTP requests.
+
+## Installation
+
+```composer require enflow/redirect-pizza-php-sdk```
+
+Upgrading from 2.x? See [UPGRADE.md](UPGRADE.md).
+
+## Usage
+
+```php
+use RedirectPizza\PhpSdk\RedirectPizza;
+
+$redirectPizza = new RedirectPizza('rpa_XXXXXXXXXXXXXXXXXXX'); // https://redirect.pizza/api
+```
+
+### Setting a timeout
+
+By default, the SDK will wait for a response for 10 seconds. You can change this by passing a `timeoutInSeconds` option to the constructor:
+
+```php
+$redirectPizza = new RedirectPizza('your-api-token', timeoutInSeconds: 30);
+```
+
+### Handling errors
+
+The SDK will throw an exception if the API returns an error. For validation errors, the SDK will throw a `ValidationException`.
+
+```php
+try {
+    $redirectPizza->createRedirect([
+        'destination' => 'invalid',
+    ]);
+} catch (\RedirectPizza\PhpSdk\Exceptions\ValidationException $exception) {
+    $exception->getMessage(); // string describing the errors
+    $exception->getErrors(); // array with all validation errors
+}
+```
+
+For all other errors, the SDK will throw a `\RedirectPizza\PhpSdk\Exceptions\RedirectPizzaException`.
+
+### Redirects
+
+```php
+// returns an iterator of RedirectPizza\PhpSdk\Dto\Redirect
+$redirects = $redirectPizza->redirects();
+
+// Optional search/filter query (status:active, tag:marketing, source:..., destination:...)
+$redirects = $redirectPizza->redirects('status:active tag:marketing');
+
+$redirect = $redirectPizza->createRedirect([
+    'sources' => ['old-source.nl'],
+    'destination' => 'new-fancy-site.nl',
+    'redirect_type' => 'permanent',
+    'keep_query_string' => false,
+]);
+
+$redirect = $redirectPizza->redirect($redirectId);
+
+$redirect = $redirectPizza->updateRedirect($redirectId, [
     'sources' => ['old-source.nl'],
     'destination' => 'new-fancy-site-v2.nl',
     'redirect_type' => 'permanent',
     'keep_query_string' => true,
 ]);
 
-// Delete the redirect
-$redirect->delete();
+$redirectPizza->pauseRedirect($redirectId);
+$redirectPizza->resumeRedirect($redirectId);
+$redirectPizza->pauseSource($redirectId, $sourceId);
+$redirectPizza->resumeSource($redirectId, $sourceId);
+
+$redirectPizza->deleteRedirect($redirectId);
+```
+
+### Domains
+
+```php
+$domains = $redirectPizza->domains();
+
+// Optional search/filter query (status:verified, status:unverified, tag:marketing, or free-text FQDN)
+$domains = $redirectPizza->domains('status:unverified example.com');
+
+$domain = $redirectPizza->domain($domainId);
+
+$domain = $redirectPizza->updateDomain($domainId, [
+    'hsts' => ['status' => 'enabled', 'max_age' => 31536000],
+    'waf' => ['status' => 'inherit'],
+]);
+
+$domain = $redirectPizza->checkDomainDns($domainId);
+
+$result = $redirectPizza->applyAutomaticDns($domainId);
+// $result->successful, $result->output
+
+$redirectPizza->deleteDomain($domainId);
+```
+
+### Email forwards
+
+```php
+$emailForwards = $redirectPizza->emailForwards();
+
+$emailForward = $redirectPizza->emailForward($emailForwardId);
+
+$emailForward = $redirectPizza->createEmailForward([
+    'domain_id' => 1,
+    'alias' => 'hello',
+    'destination' => 'you@example.com',
+]);
+
+$emailForward = $redirectPizza->updateEmailForward($emailForwardId, [
+    'destination' => 'new@example.com',
+]);
+
+$redirectPizza->deleteEmailForward($emailForwardId);
+```
+
+### Analytics (beta)
+
+```php
+use RedirectPizza\PhpSdk\Enums\AnalyticsDimension;
+
+$hits = $redirectPizza->hitsTotal(start: '2025-04-30', end: '2025-05-20');
+echo $hits->count;
+
+$series = $redirectPizza->timeSeries(start: '2025-04-30', end: '2025-05-20');
+
+$dimensions = $redirectPizza->dimensions(
+    AnalyticsDimension::Countries,
+    start: '2025-04-30',
+    end: '2025-05-20',
+);
+```
+
+#### Raw hits and cursor pagination
+
+Unlike redirects, domains, and users (page-based), raw hits use **cursor pagination**. The API returns `meta.next_cursor`; the SDK follows that cursor until it is `null`.
+
+`rawHits()` returns an iterable that walks every page for you:
+
+```php
+use RedirectPizza\PhpSdk\Dto\RawHit;
+use RedirectPizza\PhpSdk\Requests\Analytics\GetRawHitsRequest;
+
+// Automatically requests the next page while meta.next_cursor is present
+foreach ($redirectPizza->rawHits(start: '2025-04-30', end: '2025-05-20', query: 'redirect:123') as $hit) {
+    /** @var RawHit $hit */
+    echo "{$hit->createdAt} {$hit->fullUrl}\n";
+}
+```
+
+For more control (for example limiting page size), build the Saloon paginator yourself:
+
+```php
+$request = new GetRawHitsRequest(start: '2025-04-30', end: '2025-05-20');
+
+$paginator = $redirectPizza->paginate($request);
+$paginator->setPerPageLimit(100);
+
+foreach ($paginator->items() as $hit) {
+    // ...
+}
+```
+
+Each page is fetched only as you iterate. Stop early by `break`ing out of the loop when you have enough results.
+
+### Team
+
+```php
+$team = $redirectPizza->team();
+
+$team = $redirectPizza->updateTeam([
+    'name' => 'Acme Inc',
+    'summary_frequency' => 'weekly',
+]);
+```
+
+### Users
+
+```php
+$users = $redirectPizza->users();
+
+$user = $redirectPizza->inviteUser([
+    'email' => 'colleague@example.com',
+    'role' => 'member',
+    'access_type' => 'all',
+]);
+
+$user = $redirectPizza->updateUser($userId, [
+    'role' => 'readonly',
+    'access_type' => 'allowed',
+    'tags' => ['marketing'],
+]);
+
+$redirectPizza->deleteUser($userId);
+```
+
+### Utils
+
+These endpoints do not require authentication.
+
+```php
+$result = $redirectPizza->testRedirect('https://example.com');
+echo $result->status; // success, redirecting, upgrading, error
+
+$qr = $redirectPizza->qrCode('https://example.com'); // JSON metadata + base64 image
+// or binary: $response = $redirectPizza->qrCode('https://example.com', format: 'png');
 ```
 
 ## Security
@@ -53,7 +247,7 @@ If you discover any security related issues, please email support@redirect.pizza
 - [Michel Bardelmeijer](https://github.com/mbardelmeijer)
 - [All Contributors](../../contributors)
 
-This package uses code from and is greatly inspired by the [OhDear PHP SDK](https://github.com/ohdearapp/ohdear-php-sdk) by [Freek van der Herten](https://github.com/freekmurze) and [Mattias Geniar](https://github.com/mattiasgeniar), which is based on [Forge SDK package](https://github.com/themsaid/forge-sdk) by [Mohammed Said](https://github.com/themsaid).
+This package is greatly inspired by the [Oh Dear PHP SDK](https://github.com/ohdearapp/ohdear-php-sdk) by [Freek van der Herten](https://github.com/freekmurze) and [Mattias Geniar](https://github.com/mattiasgeniar).
 
 ## License
 
